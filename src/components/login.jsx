@@ -1,76 +1,113 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useId, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router"
+import { toast } from "react-toastify";
 
-const Login = ({ onLoginSuccess }) => { // 1. Recibimos la función para avisar al App.jsx
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:8080/users/login', {
-                mail: email,
-                password: password
-            });
+const Login = () => {
 
-            console.log("Respuesta del servidor:", response.data);
+  const idUser = useId();
+  const idPass = useId();
+  const campoUsuario = useRef();
+  const campoPass = useRef();
+  const navigate = useNavigate();
+  const [mensajeError, setMensajeError] = useState("");
+  const [botonHabilitado, setBotonHabilitado] = useState(false);
 
-            // 2. Extraemos el token y los datos del usuario del AuthResponse
-            const token = response.data.token;
+  useEffect(() => {
+    if (localStorage.getItem("token") && localStorage.getItem("id")) {
+          navigate("/products"); 
+    }
+  }, [])
 
-            if (token) {
-                // Guardamos el token para las peticiones a la API
-                localStorage.setItem('token', token);
+  const validarCampos = () => {
+    const usuario = campoUsuario.current.value.trim();
+    const password = campoPass.current.value.trim();
+    setBotonHabilitado(usuario !== "" && password !== "");
+  }
 
-                // Guardamos el objeto usuario completo (contiene userName, mail, etc.)
-                // Lo convertimos a String porque localStorage solo guarda texto
-                localStorage.setItem('user', JSON.stringify(response.data));
+  const ingresar = async e => {
+    const userUsername = campoUsuario.current.value;
+    const userPassword = campoPass.current.value;
 
-                alert("¡Bienvenido a ScrapperMarket!");
-
-                // 3. ¡IMPORTANTE! Avisamos al App.jsx que cargue los nuevos datos
-                if (onLoginSuccess) {
-                    onLoginSuccess();
-                }
-
-                navigate('/');
-            } else {
-                alert("Error: El servidor no envió un token válido.");
-            }
-
-        } catch (error) {
-            console.error("Error completo:", error);
-            alert("Credenciales incorrectas o problema de conexión.");
-        }
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userUsername,
+        userPassword
+      }),
+      redirect: "follow"
     };
 
-    return (
-        <div style={containerStyle}>
-            <div style={cardStyle}>
-                <h2 style={{color: '#2c3e50', marginBottom: '20px'}}>ScrapperMarket</h2>
-                <form onSubmit={handleLogin}>
-                    <input
-                        type="email" placeholder="Email" value={email}
-                        onChange={(e) => setEmail(e.target.value)} required
-                        style={inputStyle}
-                    />
-                    <input
-                        type="password" placeholder="Contraseña" value={password}
-                        onChange={(e) => setPassword(e.target.value)} required
-                        style={inputStyle}
-                    />
-                    <button type="submit" style={btnStyle}>Ingresar</button>
-                </form>
+    fetch("http://localhost:8080/users/login", requestOptions)
+  .then(async response => {
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+    return response.text(); 
+  })
+  .then(token => {
+    setMensajeError("");
+    localStorage.setItem("token", token);
+    navigate("/products"); 
+  })
+  .catch(error => {
+    setMensajeError(error.message || "Error de login");
+  });
+
+  }
+  return (
+    <div className="d-flex align-items-center justify-content-center" style={{ height: 'calc(100vh - 56px)' }}>
+      <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px' }}>
+        <h2 className="text-center mb-4">Iniciar sesión</h2>
+        <form>
+          <div className="mb-3">
+            <label htmlFor={idUser} className="form-label">Usuario:</label>
+            <input
+              type="text"
+              id={idUser}
+              className="form-control"
+              ref={campoUsuario}
+              onKeyUp={validarCampos}
+              onChange={validarCampos}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor={idPass} className="form-label">Contraseña:</label>
+            <input
+              type="password"
+              id={idPass}
+              className="form-control"
+              ref={campoPass}
+              onKeyUp={validarCampos}
+              onChange={validarCampos}
+            />
+          </div>
+
+          {mensajeError && (
+            <div className="alert alert-danger" role="alert">
+              {mensajeError}
             </div>
-        </div>
-    );
-};
+          )}
 
-const containerStyle = { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' };
-const cardStyle = { padding: '2rem', background: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', textAlign: 'center', width: '350px' };
-const inputStyle = { width: '100%', padding: '12px', margin: '10px 0', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ddd' };
-const btnStyle = { width: '100%', padding: '12px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
+          <input
+            type="button"
+            value="Ingresar"
+            className={`btn btn-success w-100 mb-3 ${!botonHabilitado ? 'opacity-50' : ''}`}
+            onClick={ingresar}
+            disabled={!botonHabilitado}
+          />
+          <div className="text-center">
+            <Link to="/signup" className="text-decoration-none">¿No tienes cuenta? Regístrate</Link>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
 
-export default Login;
+export default Login

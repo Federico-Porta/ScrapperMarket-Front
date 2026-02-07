@@ -1,155 +1,267 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import CartComparison from './CartComparison';
+import CartItem from './cart/CartItem';
+import CartSummary from './cart/CartSummary';
+import EmptyCart from './cart/EmptyCart';
 
 const Cart = () => {
-    const [cartData, setCartData] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [comparison, setComparison] = useState(null);
+    const [loadingComparison, setLoadingComparison] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
 
- const fetchCart = async () => {
-         try {
-             const response = await axios.get('http://localhost:8080/cart', {
-                 headers: { 'Authorization': `Bearer ${token}` }
-             });
+    const fetchCart = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.warning("Debes iniciar sesión para ver tu carrito.");
+            navigate('/login');
+            return;
+        }
 
-             // --- LÓGICA DE ORDENAMIENTO ---
-             // Ordenamos alfabéticamente por productName para que no salte de lugar
-             const sortedItems = (response.data.items || []).sort((a, b) =>
-                 a.productName.localeCompare(b.productName)
-             );
-
-             setCartData({ ...response.data, items: sortedItems });
-             setLoading(false);
-         } catch (error) {
-             console.error("Error al obtener el carrito:", error);
-             setLoading(false);
-         }
-     };
-
-    // Función para actualizar cantidad (Suma o Resta)
-    const updateQuantity = async (productEan, newQuantity) => {
-        if (newQuantity < 1) return; // Evitamos cantidades menores a 1
-
+        setLoading(true);
         try {
-            await axios.post('http://localhost:8080/cart/add', {
-                productEan: productEan,
-                quantity: newQuantity
-            }, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+            };
+
+            const response = await fetch('http://localhost:8080/cart/getProductsCart', {
+                headers
             });
-            fetchCart(); // Recargamos para ver el cambio
+
+            if (response.ok) {
+                const data = await response.json();
+                setCartItems(data);
+            } else {
+                if (response.status === 401) {
+                    toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
+                    navigate('/login');
+                } else {
+                    toast.error("Error al cargar el carrito");
+                }
+            }
         } catch (error) {
-            alert("Error al actualizar cantidad");
+            console.error("Error:", error);
+            toast.error("Error al cargar el carrito");
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleRemove = async (productEan) => {
+    const handleRemoveProduct = async (productId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.warning("Debes iniciar sesión.");
+            navigate('/login');
+            return;
+        }
+
         try {
-            await axios.delete(`http://localhost:8080/cart/remove/${productEan}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            fetchCart();
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+
+            const response = await fetch(
+                `http://localhost:8080/cart/removeProduct?id=${productId}`,
+                {
+                    method: 'POST',
+                    headers
+                }
+            );
+
+            if (response.ok) {
+                toast.success("Producto eliminado del carrito");
+                fetchCart(); // Recargar carrito
+            } else {
+                const errorData = await response.text();
+                toast.error(`Error: ${errorData}`);
+            }
         } catch (error) {
-            alert("No se pudo eliminar el producto");
+            console.error("Error:", error);
+            toast.error("Error al eliminar el producto");
+        }
+    };
+
+    const handleSubtractUnit = async (productId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.warning("Debes iniciar sesión.");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+
+            const response = await fetch(
+                `http://localhost:8080/cart/subtractUnitProductCart?id=${productId}`,
+                {
+                    method: 'POST',
+                    headers
+                }
+            );
+
+            if (response.ok) {
+                toast.success("Unidad quitada del carrito");
+                fetchCart();
+            } else {
+                const errorData = await response.text();
+                toast.error(`Error: ${errorData}`);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Error al actualizar el carrito");
+        }
+    };
+
+    const handleAddUnit = async (productId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.warning("Debes iniciar sesión.");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+
+            const response = await fetch(
+                `http://localhost:8080/cart/addProduct?id=${productId}&quant=1`,
+                {
+                    method: 'POST',
+                    headers
+                }
+            );
+
+            if (response.ok) {
+                fetchCart();
+            } else {
+                const errorData = await response.text();
+                toast.error(`Error: ${errorData}`);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Error al actualizar el carrito");
+        }
+    };
+
+    const handleCalculateComparison = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.warning("Debes iniciar sesión");
+            navigate('/login');
+            return;
+        }
+
+        setLoadingComparison(true);
+        setShowModal(true);
+
+        try {
+            const response = await fetch('http://localhost:8080/cart/calculateCart', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setComparison(data);
+            } else {
+                const errorText = await response.text();
+                toast.error(errorText || 'Error al calcular el carrito');
+                setShowModal(false);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Error de conexión');
+            setShowModal(false);
+        } finally {
+            setLoadingComparison(false);
         }
     };
 
     useEffect(() => {
-        if (!token) navigate('/login');
-        else fetchCart();
-    }, [token]);
+        fetchCart();
+    }, []);
 
-    if (loading) return <p style={{textAlign: 'center', marginTop: '50px'}}>Cargando carrito...</p>;
+    if (loading) {
+        return (
+            <div className="container py-5 text-center">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-3">Cargando carrito...</p>
+            </div>
+        );
+    }
 
     return (
-        <div style={containerStyle}>
-            <h2 style={titleStyle}>Tu Carrito de Compras</h2>
+        <div className="container py-4">
+            <h2 className="mb-4">🛒 Mi Carrito</h2>
 
-            {!cartData || !cartData.items || cartData.items.length === 0 ? (
-                <div style={emptyStyle}>
-                    <p>Tu carrito está vacío.</p>
-                    <button onClick={() => navigate('/')} style={shopBtnStyle}>Ir al catálogo</button>
-                </div>
+            {cartItems.length === 0 ? (
+                <EmptyCart onGoToProducts={() => navigate('/products')} />
             ) : (
-                <div style={cartWrapper}>
-                    <table style={tableStyle}>
-                        <thead>
-                            <tr style={headerRow}>
-                                <th style={thStyle}>Producto</th>
-                                <th style={thStyle}>EAN</th>
-                                <th style={thStyle}>Cantidad</th>
-                                <th style={thStyle}>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cartData.items.map((item) => (
-                                <tr key={item.productEan} style={rowStyle}>
-                                    <td style={nameCell}>{item.productName}</td>
-                                    <td style={tdStyle}>{item.productEan}</td>
-                                    <td style={tdStyle}>
-                                        <div style={qtyContainer}>
-                                            <button
-                                                style={qtyBtn}
-                                                onClick={() => updateQuantity(item.productEan, item.quantity - 1)}
-                                            > - </button>
-
-                                            <span style={qtyText}>{item.quantity}</span>
-
-                                            <button
-                                                style={qtyBtn}
-                                                onClick={() => updateQuantity(item.productEan, item.quantity + 1)}
-                                            > + </button>
-                                        </div>
-                                    </td>
-                                    <td style={tdStyle}>
-                                        <button
-                                            onClick={() => handleRemove(item.productEan)}
-                                            style={removeBtnStyle}
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <div style={summaryStyle}>
-                        <h3>Resumen</h3>
-                        <p>Items totales: {cartData.items.reduce((acc, item) => acc + item.quantity, 0)}</p>
-                        <button style={checkoutBtnStyle}>Comparar Precios</button>
+                <>
+                    <div className="row g-3">
+                        {cartItems.map((item) => (
+                            <div key={item.productId} className="col-12">
+                                <CartItem
+                                    item={item}
+                                    onRemove={handleRemoveProduct}
+                                    onSubtract={handleSubtractUnit}
+                                    onAdd={handleAddUnit}
+                                />
+                            </div>
+                        ))}
                     </div>
-                </div>
+
+                    <CartSummary onCalculate={handleCalculateComparison} />
+
+                    {/* Modal de Comparación */}
+                    {showModal && (
+                        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                            <div className="modal-dialog modal-xl">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">Comparación de Carritos</h5>
+                                        <button
+                                            type="button"
+                                            className="btn-close"
+                                            onClick={() => setShowModal(false)}
+                                        ></button>
+                                    </div>
+                                    <CartComparison
+                                        comparison={comparison}
+                                        loading={loadingComparison}
+                                        onClose={() => setShowModal(false)}
+                                    />
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary"
+                                            onClick={() => setShowModal(false)}
+                                        >
+                                            Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
 };
-
-// --- ESTILOS NUEVOS PARA SELECTOR DE CANTIDAD ---
-const qtyContainer = { display: 'flex', alignItems: 'center', gap: '10px' };
-const qtyBtn = {
-    width: '30px', height: '30px', borderRadius: '50%', border: '1px solid #ddd',
-    backgroundColor: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem',
-    display: 'flex', justifyContent: 'center', alignItems: 'center'
-};
-const qtyText = { fontSize: '1rem', fontWeight: 'bold', minWidth: '20px', textAlign: 'center' };
-
-// --- RESTO DE ESTILOS (Mantenidos) ---
-const containerStyle = { padding: '40px', maxWidth: '1000px', margin: '0 auto' };
-const titleStyle = { color: '#2c3e50', borderBottom: '2px solid #3498db', paddingBottom: '10px' };
-const cartWrapper = { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px', marginTop: '20px' };
-const tableStyle = { width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' };
-const headerRow = { backgroundColor: '#f8f9fa', textAlign: 'left' };
-const thStyle = { padding: '15px', borderBottom: '2px solid #eee' };
-const tdStyle = { padding: '15px', borderBottom: '1px solid #eee' };
-const rowStyle = { borderBottom: '1px solid #eee' };
-const nameCell = { padding: '15px', fontWeight: 'bold', borderBottom: '1px solid #eee' };
-const removeBtnStyle = { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' };
-const summaryStyle = { background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', height: 'fit-content' };
-const checkoutBtnStyle = { width: '100%', padding: '12px', backgroundColor: '#27ae60', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' };
-const emptyStyle = { textAlign: 'center', marginTop: '50px' };
-const shopBtnStyle = { padding: '10px 20px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '10px' };
 
 export default Cart;
