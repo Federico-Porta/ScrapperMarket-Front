@@ -4,7 +4,7 @@ import { browserrouter, route, routes } from 'react-router'
 import signup from './components/signup'
 import productlist from './components/productlist'
 import { toastcontainer } from 'react-toastify'
-import "react-toastify/dist/reacttoastify.css";
+import "react-toastify/dist/ReactToastify.css";
 import cart from './components/cart'
 import navbar from './components/navbar'
 import userprofile from './components/userprofile'
