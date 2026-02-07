@@ -26,16 +26,16 @@ const ProductList = () => {
             let url;
             if (selectedCategory && searchTerm) {
                 // Si hay categoría Y búsqueda, primero carga la categoría y luego filtra en front
-                url = `http://localhost:8080/api/products/category/${selectedCategory}?page=${page}&size=20`;
+                url = `https://optify-backend-389924772240.us-east1.run.app/api/products/category/${selectedCategory}?page=${page}&size=20`;
             } else if (searchTerm) {
                 // Si solo hay término de búsqueda, buscar por nombre
-                url = `http://localhost:8080/api/products/search?term=${encodeURIComponent(searchTerm)}&page=${page}&size=20`;
+                url = `https://optify-backend-389924772240.us-east1.run.app/api/products/search?term=${encodeURIComponent(searchTerm)}&page=${page}&size=20`;
             } else if (selectedCategory) {
                 // Si hay categoría seleccionada, usar endpoint específico
-                url = `http://localhost:8080/api/products/category/${selectedCategory}?page=${page}&size=20`;
+                url = `https://optify-backend-389924772240.us-east1.run.app/api/products/category/${selectedCategory}?page=${page}&size=20`;
             } else {
                 // Sin filtro, traer todos los productos
-                url = `http://localhost:8080/api/products/allProducts?page=${page}&size=20`;
+                url = `https://optify-backend-389924772240.us-east1.run.app/api/products/allProducts?page=${page}&size=20`;
             }
 
             const response = await fetch(url, {
@@ -94,7 +94,7 @@ const ProductList = () => {
             };
 
             const response = await fetch(
-                `http://localhost:8080/cart/addProduct?id=${product.productId}&quant=${quantity}`,
+                `https://optify-backend-389924772240.us-east1.run.app/cart/addProduct?id=${product.productId}&quant=${quantity}`,
                 {
                     method: 'POST',
                     headers
@@ -119,7 +119,7 @@ const ProductList = () => {
             try {
                 const headers = { 'Accept': 'application/json' };
 
-                const resp = await fetch('http://localhost:8080/api/products/categories', { headers });
+                const resp = await fetch('https://optify-backend-389924772240.us-east1.run.app/api/products/categories', { headers });
                 if (resp.ok) {
                     const data = await resp.json();
                     // Guardar objetos completos con categoryId y name

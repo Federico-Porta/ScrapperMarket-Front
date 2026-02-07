@@ -41,7 +41,7 @@ const Login = () => {
       redirect: "follow"
     };
 
-    fetch("http://localhost:8080/users/login", requestOptions)
+    fetch("https://optify-backend-389924772240.us-east1.run.app/users/login", requestOptions)
   .then(async response => {
     if (!response.ok) {
       const error = await response.text();

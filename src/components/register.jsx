@@ -31,7 +31,7 @@ const Register = () => {
         setLoading(true);
         try {
             // Enviamos los datos tal cual los espera tu RegisterRequest.java
-            const response = await axios.post('http://localhost:8080/users/register', {
+            const response = await axios.post('https://optify-backend-389924772240.us-east1.run.app/users/register', {
                 ci: parseInt(formData.ci), // Convertimos a número para el long de Java
                 name: formData.name,
                 lastName: formData.lastName,

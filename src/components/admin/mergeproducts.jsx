@@ -13,7 +13,7 @@ const MergeProducts = () => {
         
         try {
             const response = await fetch(
-                `http://localhost:8080/products/mergeProducts?keepProductId=${keepProductId}&suprProductId=${suprProductId}`,
+                `https://optify-backend-389924772240.us-east1.run.app/products/mergeProducts?keepProductId=${keepProductId}&suprProductId=${suprProductId}`,
                 {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }

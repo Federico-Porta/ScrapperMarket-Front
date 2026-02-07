@@ -20,7 +20,7 @@ const StoresManagement = () => {
     const fetchStores = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8080/stores/getAllStores');
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/stores/getAllStores');
             if (response.ok) {
                 const data = await response.json();
                 setStores(data);
@@ -82,7 +82,7 @@ const StoresManagement = () => {
         setLoading(true);
         
         try {
-            const response = await fetch(`http://localhost:8080/stores/deleteStore?rut=${rut}`, {
+            const response = await fetch(`https://optify-backend-389924772240.us-east1.run.app/stores/deleteStore?rut=${rut}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

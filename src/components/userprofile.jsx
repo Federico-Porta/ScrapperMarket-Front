@@ -45,7 +45,7 @@ const UserProfile = () => {
                 'Accept': 'application/json'
             };
 
-            const response = await fetch('http://localhost:8080/stores/getAllStores', { headers });
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/stores/getAllStores', { headers });
             if (response.ok) {
                 const data = await response.json();
                 setStores(data);
@@ -65,7 +65,7 @@ const UserProfile = () => {
 
             // Asumiendo que hay un endpoint para obtener el perfil del usuario
             // Si no existe, estos campos quedarán vacíos
-            const response = await fetch('http://localhost:8080/api/users/profile', { headers });
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/api/users/profile', { headers });
             if (response.ok) {
                 const data = await response.json();
                 setEmail(data.email || '');
@@ -95,7 +95,7 @@ const UserProfile = () => {
                 userPreferredStore: preferredStore ? parseInt(preferredStore) : null
             };
 
-            const response = await fetch('http://localhost:8080/api/users/updateProfile', {
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/api/users/updateProfile', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(body)
@@ -142,7 +142,7 @@ const UserProfile = () => {
                 newPassword
             };
 
-            const response = await fetch('http://localhost:8080/api/users/changePassword', {
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/api/users/changePassword', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(body)

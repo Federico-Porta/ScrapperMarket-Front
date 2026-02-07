@@ -67,7 +67,7 @@ const Signup = () => {
         };
 
         try {
-            const response = await fetch("http://localhost:8080/users/register", requestOptions);
+            const response = await fetch("https://optify-backend-389924772240.us-east1.run.app/users/register", requestOptions);
 
             // Obtener el texto de la respuesta primero
             const textBody = await response.text();
@@ -111,7 +111,7 @@ const Signup = () => {
                     'Accept': 'application/json',
                 };
 
-                const response = await fetch('http://localhost:8080/stores/getAllStores', { headers });
+                const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/stores/getAllStores', { headers });
                 if (response.ok) {
                     const data = await response.json();
                     setTiendas(data);

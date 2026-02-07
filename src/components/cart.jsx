@@ -28,7 +28,7 @@ const Cart = () => {
                 'Authorization': `Bearer ${token}`,
             };
 
-            const response = await fetch('http://localhost:8080/cart/getProductsCart', {
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/cart/getProductsCart', {
                 headers
             });
 
@@ -65,7 +65,7 @@ const Cart = () => {
             };
 
             const response = await fetch(
-                `http://localhost:8080/cart/removeProduct?id=${productId}`,
+                `https://optify-backend-389924772240.us-east1.run.app/cart/removeProduct?id=${productId}`,
                 {
                     method: 'POST',
                     headers
@@ -99,7 +99,7 @@ const Cart = () => {
             };
 
             const response = await fetch(
-                `http://localhost:8080/cart/subtractUnitProductCart?id=${productId}`,
+                `https://optify-backend-389924772240.us-east1.run.app/cart/subtractUnitProductCart?id=${productId}`,
                 {
                     method: 'POST',
                     headers
@@ -133,7 +133,7 @@ const Cart = () => {
             };
 
             const response = await fetch(
-                `http://localhost:8080/cart/addProduct?id=${productId}&quant=1`,
+                `https://optify-backend-389924772240.us-east1.run.app/cart/addProduct?id=${productId}&quant=1`,
                 {
                     method: 'POST',
                     headers
@@ -164,7 +164,7 @@ const Cart = () => {
         setShowModal(true);
 
         try {
-            const response = await fetch('http://localhost:8080/cart/calculateCart', {
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/cart/calculateCart', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

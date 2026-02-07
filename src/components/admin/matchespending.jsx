@@ -14,7 +14,7 @@ const MatchesPending = () => {
         setLoading(true);
         
         try {
-            const response = await fetch('http://localhost:8080/matching/all', {
+            const response = await fetch('https://optify-backend-389924772240.us-east1.run.app/matching/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -41,7 +41,7 @@ const MatchesPending = () => {
         const token = localStorage.getItem('token');
         
         try {
-            const response = await fetch(`http://localhost:8080/matching/confirm?id=${matchId}`, {
+            const response = await fetch(`https://optify-backend-389924772240.us-east1.run.app/matching/confirm?id=${matchId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
