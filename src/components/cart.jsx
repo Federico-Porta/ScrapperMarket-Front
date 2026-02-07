@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useeffect, usestate } from 'react';
+import { usenavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import CartComparison from './CartComparison';
-import CartItem from './cart/CartItem';
-import CartSummary from './cart/CartSummary';
-import EmptyCart from './cart/EmptyCart';
+import cartcomparison from './cartcomparison';
+import cartitem from './cart/cartitem';
+import cartsummary from './cart/cartsummary';
+import emptycart from './cart/emptycart';
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);

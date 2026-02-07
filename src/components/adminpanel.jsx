@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import MatchesPending from './admin/MatchesPending';
-import MergeProducts from './admin/MergeProducts';
-import StoresManagement from './admin/StoresManagement';
+import MatchesPending from './admin/matchespending';
+import MergeProducts from './admin/mergeproducts';
+import StoresManagement from './admin/storesmanagement';
 
 const AdminPanel = () => {
     const navigate = useNavigate();

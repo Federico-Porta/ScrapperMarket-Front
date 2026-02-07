@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import ProductCard from './products/ProductCard';
-import ProductFilters from './products/ProductFilters';
-import Pagination from './products/Pagination';
+import ProductCard from './products/productcard';
+import ProductFilters from './products/productfilters';
+import Pagination from './products/pagination';
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
