@@ -1,14 +1,14 @@
-import Login from './components/Login'
+import login from './components/login'
 import './bootstrap.min.css'
-import { BrowserRouter, Route, Routes } from 'react-router'
-import Signup from './components/Signup'
-import ProductList from './components/ProductList'
-import { ToastContainer } from 'react-toastify'
-import "react-toastify/dist/ReactToastify.css";
-import Cart from './components/Cart'
-import NavBar from './components/NavBar'
-import UserProfile from './components/UserProfile'
-import AdminPanel from './components/AdminPanel'
+import { browserrouter, route, routes } from 'react-router'
+import signup from './components/signup'
+import productlist from './components/productlist'
+import { toastcontainer } from 'react-toastify'
+import "react-toastify/dist/reacttoastify.css";
+import cart from './components/cart'
+import navbar from './components/navbar'
+import userprofile from './components/userprofile'
+import adminpanel from './components/adminpanel'
 
 function App() {
 
